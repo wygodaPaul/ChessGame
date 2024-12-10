@@ -1,25 +1,79 @@
 import * as THREE from 'three';
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+let scene, camera, renderer, ambientLight, directionalLight, allPawns
+// const main = () => {
+    scene = new THREE.Scene()
+    allPawns = new THREE.Group()
+    scene.add(allPawns)
+    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000 )
+    camera.position.x = 20
+    camera.position.y = 50
+    camera.position.z = 20
+    renderer = new THREE.WebGLRenderer({ antialias: true } );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    document.body.appendChild( renderer.domElement );
+    ambientLight = new THREE.AmbientLight(0x606060);
+    scene.add(ambientLight);
+    
+    directionalLight = new THREE.DirectionalLight( 0xffffb2, 1.0 );
+    directionalLight.position.set( 0, 50, 0 );
+    scene.add( directionalLight );
+    
 
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth, window.innerHeight );
-renderer.setAnimationLoop( animate );
-document.body.appendChild( renderer.domElement );
+    // let board = boardCreator()
+    // board = populateChessboard(board)
 
-const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-const cube = new THREE.Mesh( geometry, material );
-scene.add( cube );
 
-camera.position.z = 5;
+    var floor = new THREE.TextureLoader().load('img/blackCarpet.jpg'); 
+    floor.repeat.set( 4,4); 
+    floor.wrapS = THREE.RepeatWrapping; 
+    floor.wrapT = THREE.RepeatWrapping; 
+    floor.anisotropy = 16;  
+    
+    var planeMaterial = new THREE.MeshBasicMaterial({map: floor});
+    var planeGeometry = new THREE.BoxGeometry( 3500, 1, 3500 )
+    var	plane = new THREE.Mesh( planeGeometry, planeMaterial )
+        plane.position.y -= 1024
+        scene.add( plane );
 
-function animate() {
+        
+	var room = new THREE.TextureLoader().load('img/room.jpg');
+    room.repeat.set( 1,1); 
+    room.wrapS = THREE.RepeatWrapping; 
+    room.wrapT = THREE.RepeatWrapping; 
+    room.anisotropy = 16
 
-	cube.rotation.x += 0.01;
-	cube.rotation.y += 0.01;
+    var geometry = new THREE.CylinderGeometry(8*1024, 8*1024, 8*1024, 100, 100, true);
+    var material = new THREE.MeshBasicMaterial( { map: room, side: THREE.BackSide } )
+    var cylinder = new THREE.Mesh( geometry, material )
 
-	renderer.render( scene, camera );
+    cylinder.position.set(0,-1024,0)
+    scene.add( cylinder )
 
-}
+    
+    let angle = 0
+
+    function animate() {
+        requestAnimationFrame( animate );
+    
+        angle += 0.005; 
+        camera.position.x = 40 + Math.sin( angle ) * -100
+        camera.position.y = 50
+        camera.position.z = 40 + Math.cos( angle ) * -100
+        camera.lookAt( 40, 0, 40 )
+
+        // makeMove(board)
+        
+
+        renderer.render( scene, camera );
+    };
+
+    
+    setTimeout( () => {
+        animate()
+    },5000)
+
+
+// }
+
+// main()
